@@ -42,3 +42,28 @@ print score
 
 # Visualizing the feature distributions
 pd.scatter_matrix(data, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
+
+# Feature scaling
+# apply transformation to the data (using natural logarithm to every columns)
+log_data = np.log(data)
+# apply natural logarithm to the samples
+log_sample = np.log(samples)
+pd.scatter_matrix(log_data, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
+
+# For each feature find the data points with extreme high or low values
+for feature in log_data.keys():
+    # Calculate Q1 (25th percentile of the data) for the given feature
+    Q1 = np.percentile(log_data[feature], 25)
+    # Calculate Q3 (75th percentile of the data) for the given feature
+    Q3 = np.percentile(log_data[feature], 75)
+    # Use the interquartile range to calculate an outlier step (1.5 times the interquartile range)
+    step = (Q3 - Q1) * 1.5
+    # Display the identified outliers
+    print "Data points considered outliers for the feature '{}':".format(feature)
+    # Note: "~" means not in array: e.g. ~np.array([True]) means False
+    print log_data[~((log_data[feature] >= Q1 - step) & (log_data[feature] <= Q3 + step))]
+
+# indices to be removed
+outliers = [66, 95, 96, 218, 338, 357, 86, 98, 154, 356, 75, 325, 161, 183, 109, 128, 142, 187, 233]
+# Removing the outliers
+good_data = log_data.drop(log_data.index[outliers]).reset_index(drop=True)

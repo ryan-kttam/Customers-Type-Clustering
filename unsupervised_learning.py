@@ -47,7 +47,7 @@ pd.scatter_matrix(data, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
 # apply transformation to the data (using natural logarithm to every columns)
 log_data = np.log(data)
 # apply natural logarithm to the samples
-log_sample = np.log(samples)
+log_samples = np.log(samples)
 pd.scatter_matrix(log_data, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
 
 # For each feature find the data points with extreme high or low values
@@ -67,3 +67,30 @@ for feature in log_data.keys():
 outliers = [66, 95, 96, 218, 338, 357, 86, 98, 154, 356, 75, 325, 161, 183, 109, 128, 142, 187, 233]
 # Removing the outliers
 good_data = log_data.drop(log_data.index[outliers]).reset_index(drop=True)
+
+# Feature Transformation
+# Apply PCA by fitting the good data with the same number of dimensions as features
+from sklearn.decomposition import PCA
+pca = PCA()
+pca.fit(good_data)
+
+
+# TODO: Transform log_samples using the PCA fit above
+pca_samples = pca.transform(log_samples)
+
+# show explained variances
+print "Explained variances are shown from higheest to lowest (in percentage): {}, ".format(pca.explained_variance_ratio_*100)
+
+#  Apply PCA by fitting the good data with only two dimensions
+# Note: the explained variance will not change even when we change n to 2,
+# the first dimension will still have 47.7% explained and second dimension still have 25.07% explained variance
+pca = PCA(n_components=2)
+pca.fit(good_data)
+# Transform the good data using the PCA fit above
+reduced_data = pca.transform(good_data)
+
+# Transform log_samples using the PCA fit above
+pca_samples = pca.transform(log_samples)
+
+# Create a DataFrame for the reduced data
+reduced_data = pd.DataFrame(reduced_data, columns = ['Dimension 1', 'Dimension 2'])

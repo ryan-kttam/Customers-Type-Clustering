@@ -94,3 +94,36 @@ pca_samples = pca.transform(log_samples)
 
 # Create a DataFrame for the reduced data
 reduced_data = pd.DataFrame(reduced_data, columns = ['Dimension 1', 'Dimension 2'])
+
+
+# creating clusters for the reduced data ( 2 dimensions)
+# For this problem, the number of clusters is not known,
+# so there is no guarantee that a given number of clusters is the best segment.
+# However, by using "silhouette coefficient", we can quantify the goodness of a clustering.
+# "silhouette coefficient" calculates how similar a data point is to its assigned cluster,
+# -1 being disimilar and 1 being similar.
+# Then the mean of the "silhouette coefficient" would be a scoring method to measure how well the clustering is.
+
+# Apply a clustering algorithm to the reduced data
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# calculating the "silhouette coefficient" for number of clusters 2 to 9.
+for n in range(2, 10):
+    clusterer = KMeans(n_clusters = n)
+    clusterer.fit(reduced_data)
+    # Predict the cluster for each data point
+    preds = clusterer.predict(reduced_data)
+    # Calculate the mean silhouette coefficient for the number of clusters chosen
+    score = silhouette_score(reduced_data, preds)
+    print "For cluster = {}, the silhouette score is {}".format(n, score)
+
+# Since cluster = 2 has the best silhouette score, I am selecting the number of clusters is 2.
+clusterer = KMeans(n_clusters = 2)
+clusterer.fit(reduced_data)
+# Predict the cluster for each data point
+preds = clusterer.predict(reduced_data)
+# Find the cluster centers
+centers = clusterer.cluster_centers_
+# Predict the cluster for each transformed sample data point
+sample_preds = clusterer.predict(pca_samples)

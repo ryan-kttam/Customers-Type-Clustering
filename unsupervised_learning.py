@@ -127,3 +127,36 @@ preds = clusterer.predict(reduced_data)
 centers = clusterer.cluster_centers_
 # Predict the cluster for each transformed sample data point
 sample_preds = clusterer.predict(pca_samples)
+
+
+# transform the cluster centers to their real values
+# Inverse transform the centers
+log_centers = pca.inverse_transform(centers)
+# Exponentiate the centers
+true_centers = np.exp(log_centers)
+
+# display the mean of the good data
+print "The average of each category after removing outliers:"
+print np.mean(np.exp(good_data))
+
+# Display the true centers
+segments = ['Segment {}'.format(i) for i in range(0,len(centers))]
+true_centers = pd.DataFrame(np.round(true_centers), columns = data.keys())
+true_centers.index = segments
+print true_centers
+
+# Cluster Analysis:
+# Comparing Segment 0 and Segment 1, segment 1 has more than double for fresh and frozen products,
+# while segments 0 is dominated on Milk, Grocery, Detergents_paper, and Delicatessen.
+# We should be aware that segment 0 and segment 1 are just average customer spending that that specific segment.
+# I would assume that segment 1 is more likely to represent restaurants, since it spent more money on Fresh
+# and Frozen products. On the other hand, I would assume segment 0 to be supermarkets, or large grocery stores,
+# because it has everything and specifically, the almost every categories are higher than the mean of our good data,
+# and its grocery is significantly higher than the mean as well as segment 1.
+
+# Given each sample point, predict which cluster it belongs to.
+inv_tran_sample = pca.inverse_transform(pca_samples)
+print pd.DataFrame(np.round(np.exp(inv_tran_sample)), columns = data.keys())
+# Display the predictions
+for i, pred in enumerate(sample_preds):
+    print "Sample point", i, "predicted to be in Cluster", pred

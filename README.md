@@ -72,3 +72,8 @@ Segment 0	4380.0	8076.0	12328.0	926.0	4757.0	1130.0
 Segment 1	9174.0	1922.0	2487.0	2049.0	318.0	697.0
 ```
 Comparing Segment 0 and Segment 1, segment 1 has more than double for fresh and frozen products on average, while segments 0 spent significant amount on Milk, Grocery, Detergents_paper, and Delicatessen. We should be aware that segment 0 and segment 1 are just average customer spending that that specific segment. I would assume that segment 1 could represent restaurants, since it spent more money on Fresh and Frozen products, and segment 0 could represent supermarkets, or large grocery stores, because it spent a decent amount on every category, and its grocery is significantly higher than the mean as well as segment 1.
+
+## Conclusion
+Companies will often run A/B tests when making small changes to their products or services to determine whether making that change will affect its customers positively or negatively. In this particular case, the wholesale distributor can split the data into two groups (segment 0 and 1) and apply A/B testing to see whether one segment would perform a better result than the other. In fact, as I stated in the previous section, segment 1 is more likely to be restaurants and segment 0 is more likely to be supermarkets. It is possible that one segment prefers different type of change than the other. As a result, based on whether a particular segment react positively for this new change, the wholesale distributor could make a corresponding business decision.
+
+

@@ -42,4 +42,33 @@ pca.fit(good_data)
 Dimension 1 explained 47.7% of variance, while Dimension 2 explained 25.1% of variance. If I include the first four dimensions, I will have explained 93.52% variance. In order words, I can drop two dimensions and only lose about 6% of the variance. Even though including more dimensions usually means I will have more information, reducing the dimensionality of the data can significantly reduce the complexity of the problem. As a result, I chose to only include the first two dimensions in this case, which represent 72.8% of total explained variance.
 
 ## clustering
+I will choose to use K-mean clustering algorithm to identify the various customer types hidden in the data. One of the advantages about K-mean clustering is that ecah data point is hard clustering, meaning it has to belong to one cluster. There are other clusterings algorithms, such as Gaussian Mixture Model clustering, where each data point is expressed in percentages, but in this particular case, I will be using K-mean clustering method. 
 
+### Determining the Number (K) of Clusters
+While it is unclear that how many clusters best describe the data, we can quantify the fit of a clustering by calculating each data point's silhouette coefficient, which measures how similar a data point is to its assigned cluster: 1 indicating the most similar, and -1 indicating the least similar. I then calculate the mean of the silhouette coefficients, and select the cluster that has the highest mean to be the best K.
+
+```
+for n in range(2,10):
+    # Kth cluster range from 2 to 9
+    clusterer = KMeans(n_clusters = n)
+    clusterer.fit(reduced_data)
+    preds = clusterer.predict(reduced_data)
+    score = silhouette_score(reduced_data, preds)
+    print "For cluster = {}, the silhouette score is {}".format(n, score)
+```
+
+```
+For cluster = 2, the silhouette score is 0.440604840149
+For cluster = 3, the silhouette score is 0.345344449186
+For cluster = 4, the silhouette score is 0.335711363131
+For cluster = 5, the silhouette score is 0.359688146035
+...
+```
+It turns out that the best K-th cluster is 2, and the centers (or means) of each segment definitely have a different distribution:
+
+```
+              Fresh	Milk	Grocery	Frozen	Detergents_Paper	Delicatessen
+Segment 0	4380.0	8076.0	12328.0	926.0	4757.0	1130.0
+Segment 1	9174.0	1922.0	2487.0	2049.0	318.0	697.0
+```
+Comparing Segment 0 and Segment 1, segment 1 has more than double for fresh and frozen products on average, while segments 0 spent significant amount on Milk, Grocery, Detergents_paper, and Delicatessen. We should be aware that segment 0 and segment 1 are just average customer spending that that specific segment. I would assume that segment 1 could represent restaurants, since it spent more money on Fresh and Frozen products, and segment 0 could represent supermarkets, or large grocery stores, because it spent a decent amount on every category, and its grocery is significantly higher than the mean as well as segment 1.

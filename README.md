@@ -1,8 +1,10 @@
 # Customers-Type-Clustering
 This project will analyze customers' annual spending amounts (in dollar) of different types of product categories. The goal of this project is to find the best variation (cluster) in the different types of customers.
 
+*Details about the project is available [here](https://ryan-kttam.github.io/Customer_Type_Clustering/)*
+
 ## Getting Started
-This project requires Python 2 and needs the following packages: 
+This project requires Python 2 and needs the following packages:
 ```
 import numpy as np
 import pandas as pd
@@ -27,14 +29,14 @@ log_data = np.log(data)
 pd.scatter_matrix(log_data, alpha = 0.3, figsize = (14,8), diagonal = 'kde');
 ```
 
-To select outliers, I use tukey's method: a data point will be considered as an outlier when it is 1.5 times the interquartile range(IQR). That is, I will consider the data point is an outlier if the value is: 
+To select outliers, I use tukey's method: a data point will be considered as an outlier when it is 1.5 times the interquartile range(IQR). That is, I will consider the data point is an outlier if the value is:
 ```
-below (Q1) – (1.5 × IQR) or above (Q3) + (1.5 × IQR), 
+below (Q1) – (1.5 × IQR) or above (Q3) + (1.5 × IQR),
   where Q1 is 25% percentile, Q3 is 75% percentile, and IQR is Q3 - Q1
 ```
 
 ## Feature Transformation
-I will be reducing the data dimensionality in this section. I will use PCA to draw clues about the underlying structure of the data. PCA calculates the dimensions that best maximize variance, meaning I will be able to find which compound combinations of categories best describe customers. 
+I will be reducing the data dimensionality in this section. I will use PCA to draw clues about the underlying structure of the data. PCA calculates the dimensions that best maximize variance, meaning I will be able to find which compound combinations of categories best describe customers.
 ```
 pca = PCA()
 pca.fit(good_data)
@@ -42,7 +44,7 @@ pca.fit(good_data)
 Dimension 1 explained 47.7% of variance, while Dimension 2 explained 25.1% of variance. If I include the first four dimensions, I will have explained 93.52% variance. In order words, I can drop two dimensions and only lose about 6% of the variance. Even though including more dimensions usually means I will have more information, reducing the dimensionality of the data can significantly reduce the complexity of the problem. As a result, I chose to only include the first two dimensions in this case, which represent 72.8% of total explained variance.
 
 ## clustering
-I will choose to use K-mean clustering algorithm to identify the various customer types hidden in the data. One of the advantages about K-mean clustering is that ecah data point is hard clustering, meaning it has to belong to one cluster. There are other clusterings algorithms, such as Gaussian Mixture Model clustering, where each data point is expressed in percentages, but in this particular case, I will be using K-mean clustering method. 
+I will choose to use K-mean clustering algorithm to identify the various customer types hidden in the data. One of the advantages about K-mean clustering is that ecah data point is hard clustering, meaning it has to belong to one cluster. There are other clusterings algorithms, such as Gaussian Mixture Model clustering, where each data point is expressed in percentages, but in this particular case, I will be using K-mean clustering method.
 
 ### Determining the Number (K) of Clusters
 While it is unclear that how many clusters best describe the data, we can quantify the fit of a clustering by calculating each data point's silhouette coefficient, which measures how similar a data point is to its assigned cluster: 1 indicating the most similar, and -1 indicating the least similar. I then calculate the mean of the silhouette coefficients, and select the cluster that has the highest mean to be the best K.
@@ -75,5 +77,3 @@ Comparing Segment 0 and Segment 1, segment 1 has more than double for fresh and 
 
 ## Conclusion
 Companies will often run A/B tests when making small changes to their products or services to determine whether making that change will affect its customers positively or negatively. In this particular case, the wholesale distributor can split the data into two groups (segment 0 and 1) and apply A/B testing to see whether one segment would perform a better result than the other. In fact, as I stated in the previous section, segment 1 is more likely to be restaurants and segment 0 is more likely to be supermarkets. It is possible that one segment prefers different type of change than the other. As a result, based on whether a particular segment react positively for this new change, the wholesale distributor could make a corresponding business decision.
-
-

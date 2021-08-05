@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
+from pandas.plotting import scatter_matrix
 import random
-
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
 
 class Customers:
 
@@ -26,6 +28,8 @@ class Customers:
 
         return self.data.iloc[idx].reset_index(drop=True)
 
+    def display_scatter_matrix(self):
+        scatter_matrix(self.data, alpha=0.3, figsize=(14, 8), diagonal='kde')
 
 customers_records = Customers()
 customers_records.load_data('customers.csv')
@@ -36,29 +40,42 @@ customers_records.data.describe()
 samples = customers_records.get_random_sample()
 
 
-# understanding the data
+class DecisionTreeModeler:
+    def __init__(self, data):
+        self.data = data
+
+    def set_target_class(self, target):
+        self.X = self.data.drop([target],axis=1)
+        self.y = self.data[target]
+
+    def training_test_split(self, train_size=0.75, random_state=0):
+        # split the dataset into training and testing
+        self.X_train, self.X_test, self.y_train, self.y_test = \
+            train_test_split(self.X, self.y, train_size=train_size, random_state=random_state)
+
+    def fit(self):
+        # Create a decision tree regressor and fit it to the training set
+        self.regressor = DecisionTreeRegressor()
+        self.regressor.fit(self.X_train, self.y_train)
+
+    def score(self):
+        # Report the score of the prediction using the testing set
+        print (self.regressor.score(self.X_test, self.y_test))
+
 # Check whether column "Frozen" can be predicted by other columns
 # That is: setting "Frozen" to be a response variable, while all other columns to be predictors
 # I will use a decision tree regressor to perform such prediction
-new_data = data.drop( ['Frozen'], axis=1)
-label = data['Frozen']
-
-# split the dataset into training and testing
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(new_data, label, train_size=0.75, random_state=1)
-
-# Create a decision tree regressor and fit it to the training set
-from sklearn.tree import DecisionTreeRegressor
-regressor = DecisionTreeRegressor()
-regressor.fit(X_train,y_train)
-# Report the score of the prediction using the testing set
-score = regressor.score(X_test, y_test)
-print score
+DTmodel = DecisionTreeModeler(customers_records.data)
+DTmodel.set_target_class('Frozen')
+DTmodel.training_test_split(train_size=.75)
+DTmodel.fit()
 # This score is R^2, which implies our features fails to fit and predict the "Frozen" category.
 # In order word, the feature of "Frozen" is useful in identifying customers' spending habits.
+DTmodel.score()
+
 
 # Visualizing the feature distributions
-pd.scatter_matrix(data, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
+customers_records.display_scatter_matrix()
 
 # Feature scaling
 # apply transformation to the data (using natural logarithm to every columns)

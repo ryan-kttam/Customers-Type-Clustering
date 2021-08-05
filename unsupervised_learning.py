@@ -1,23 +1,40 @@
 import numpy as np
 import pandas as pd
+import random
 
 
-# load the data and prevent errors from occurring
-try:
-    data = pd.read_csv("customers.csv")
-    data.drop(['Region', 'Channel'], axis=1, inplace=True)
-    print "Wholesale customers dataset has {} samples with {} features each.".format(*data.shape)
-except:
-    print "Dataset could not be loaded. Is the dataset missing?"
+class Customers:
+
+    def __init__(self):
+        self.data = None
+
+    def load_data(self, file):
+        # load the data and prevent errors from occurring
+        try:
+            self.data = pd.read_csv(file)
+            self.data.drop(['Region', 'Channel'], axis=1, inplace=True)
+            print("Wholesale customers dataset has {} samples with {} features each.".format(*self.data.shape))
+        except:
+            print("Dataset could not be loaded. Is the dataset missing?")
+
+    def get_random_sample(self, random_state = 0):
+        # default random samples are [100, 200, 300]
+        if random_state > 0:
+            idx = random.sample(range(1,len(self.data)), 3)
+        else:
+            idx = [100, 200, 300]
+
+        return self.data.iloc[idx].reset_index(drop=True)
+
+
+customers_records = Customers()
+customers_records.load_data('customers.csv')
 
 # data summary (Mean, sd, percentile)
-data.describe()
+customers_records.data.describe()
 
-#select three samples from the dataset
-indices = [100,200,300]
-# Create a DataFrame of the chosen samples
-samples = pd.DataFrame(data.loc[indices], columns = data.keys()).reset_index(drop = True)
-samples
+samples = customers_records.get_random_sample()
+
 
 # understanding the data
 # Check whether column "Frozen" can be predicted by other columns

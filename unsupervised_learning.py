@@ -4,6 +4,7 @@ from pandas.plotting import scatter_matrix
 import random
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.decomposition import PCA
 
 class Customers:
 
@@ -30,6 +31,13 @@ class Customers:
 
     def display_scatter_matrix(self):
         scatter_matrix(self.data, alpha=0.3, figsize=(14, 8), diagonal='kde')
+
+    def update_data(self, method = None):
+        if method == 'log':
+            self.data = np.log(self.data)
+
+    def remove_outliers_idx(self,idx_list):
+        return self.data.drop(self.data.index[idx_list]).reset_index(drop=True)
 
 customers_records = Customers()
 customers_records.load_data('customers.csv')
@@ -79,12 +87,14 @@ customers_records.display_scatter_matrix()
 
 # Feature scaling
 # apply transformation to the data (using natural logarithm to every columns)
-log_data = np.log(data)
+#log_data = np.log(customers_records.data)
+customers_records.update_data('log')
 # apply natural logarithm to the samples
 log_samples = np.log(samples)
-pd.scatter_matrix(log_data, alpha = 0.3, figsize = (14,8), diagonal = 'kde')
+customers_records.display_scatter_matrix()
 
 # For each feature find the data points with extreme high or low values
+log_data = customers_records.data
 for feature in log_data.keys():
     # Calculate Q1 (25th percentile of the data) for the given feature
     Q1 = np.percentile(log_data[feature], 25)
@@ -93,27 +103,24 @@ for feature in log_data.keys():
     # Use the interquartile range to calculate an outlier step (1.5 times the interquartile range)
     step = (Q3 - Q1) * 1.5
     # Display the identified outliers
-    print "Data points considered outliers for the feature '{}':".format(feature)
+    print ("Data points considered outliers for the feature '{}':".format(feature))
     # Note: "~" means not in array: e.g. ~np.array([True]) means False
-    print log_data[~((log_data[feature] >= Q1 - step) & (log_data[feature] <= Q3 + step))]
+    print (log_data[~((log_data[feature] >= Q1 - step) & (log_data[feature] <= Q3 + step))])
 
 # indices to be removed
 outliers = [66, 95, 96, 218, 338, 357, 86, 98, 154, 356, 75, 325, 161, 183, 109, 128, 142, 187, 233]
 # Removing the outliers
-good_data = log_data.drop(log_data.index[outliers]).reset_index(drop=True)
+good_data = customers_records.remove_outliers_idx(outliers)
 
 # Feature Transformation
 # Apply PCA by fitting the good data with the same number of dimensions as features
-from sklearn.decomposition import PCA
+
 pca = PCA()
 pca.fit(good_data)
-
-
-# TODO: Transform log_samples using the PCA fit above
 pca_samples = pca.transform(log_samples)
 
 # show explained variances
-print "Explained variances are shown from higheest to lowest (in percentage): {}, ".format(pca.explained_variance_ratio_*100)
+print ("Explained variances are shown from higheest to lowest (in percentage): {}, ".format(pca.explained_variance_ratio_*100))
 
 #  Apply PCA by fitting the good data with only two dimensions
 # Note: the explained variance will not change even when we change n to 2,
